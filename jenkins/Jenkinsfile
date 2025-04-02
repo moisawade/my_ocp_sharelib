@@ -1,4 +1,4 @@
-@Library('jenkins-shared-library') _  
+@Library('my_ocp_sharelib') _  
 import com.aviro.OpenShiftHelper  
 
 pipeline {
