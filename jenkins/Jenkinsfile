@@ -1,0 +1,44 @@
+@Library('jenkins-shared-library') _  
+import com.aviro.OpenShiftHelper  
+
+pipeline {
+    agent any  
+
+    environment {
+        OC_TOKEN = credentials('openshift-token')  // Jenkins credentials
+        OC_SERVER = "https://openshift.example.com:6443"
+        PROJECT = "my-openshift-project"
+        IMAGE = "myrepo/my-app:latest"
+        APP_NAME = "my-app"
+    }
+
+    stages {
+        stage('Login to OpenShift') {
+            steps {
+                script {
+                    OpenShiftHelper.login(this, OC_TOKEN, OC_SERVER)
+                }
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                script {
+                    OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
+                }
+            }
+        }
+
+        stage('Check Deployment Status') {
+            steps {
+                script {
+                    if (!OpenShiftHelper.checkDeployment(this, PROJECT, APP_NAME)) {
+                        error "❌ Le déploiement a échoué !"
+                    } else {
+                        echo "✅ L'application a été déployée avec succès sur OpenShift !"
+                    }
+                }
+            }
+        }
+    }
+}
