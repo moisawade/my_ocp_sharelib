@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         OC_TOKEN = credentials('openshift-token')  // Jenkins credentials
-        OC_SERVER = "https://openshift.example.com:6443"
+        OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
         PROJECT = "my-openshift-project"
         IMAGE = "myrepo/my-app:latest"
         APP_NAME = "my-app"
