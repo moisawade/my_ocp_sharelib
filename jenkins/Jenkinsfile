@@ -2,7 +2,10 @@
 import com.aviro.OpenShiftHelper  
 
 pipeline {
-    agent any  
+    //agent any  
+    agent {
+        label 'builder'
+    }
 
     environment {
         OC_TOKEN = credentials('openshift-id')  // Jenkins credentials
