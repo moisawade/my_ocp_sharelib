@@ -12,7 +12,7 @@ pipeline {
         OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
         PROJECT = "moussacloudwade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
-        APP_NAME = "labisi2025-00001"
+        APP_NAME = "labisi2025-00001-deployment"
     }
 
     stages {
@@ -36,9 +36,9 @@ pipeline {
             steps {
                 script {
                     if (!OpenShiftHelper.checkDeployment(this, PROJECT, APP_NAME)) {
-                        error "❌ Le déploiement a échoué !"
+                        error "Le déploiement a échoué !"
                     } else {
-                        echo "✅ L'application a été déployée avec succès sur OpenShift !"
+                        echo "L'application a été déployée avec succès sur OpenShift !"
                     }
                 }
             }
