@@ -12,7 +12,7 @@ def call(String project, String image, String appName, String ocToken, String oc
         sh "oc set image deployment/${ocDeployment} ${appName}=${image} --namespace=${project}"
 
         // Vérification du statut du déploiement
-        def status = sh(script: "oc rollout status deployment/${appName} --namespace=${project}", returnStatus: true)
+        def status = sh(script: "oc rollout status deployment/${ocDeployment} --namespace=${project}", returnStatus: true)
 
         if (status != 0) {
             error " Échec du déploiement sur OpenShift !"
