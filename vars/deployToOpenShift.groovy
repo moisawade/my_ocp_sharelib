@@ -1,6 +1,6 @@
 def call(String project, String image, String appName, String ocToken, String ocServer) {
     script {
-        echo "🔄 Déploiement de l'application '${appName}' sur OpenShift..."
+        echo "Déploiement de l'application '${appName}' sur OpenShift..."
 
         // Connexion à OpenShift
         sh "oc login --token=${ocToken} --server=${ocServer}"
@@ -15,9 +15,9 @@ def call(String project, String image, String appName, String ocToken, String oc
         def status = sh(script: "oc rollout status deployment/${appName} --namespace=${project}", returnStatus: true)
 
         if (status != 0) {
-            error "❌ Échec du déploiement sur OpenShift !"
+            error " Échec du déploiement sur OpenShift !"
         } else {
-            echo "✅ Déploiement réussi !"
+            echo "Déploiement réussi !"
         }
     }
 }
