@@ -1,4 +1,4 @@
-def call(String project, String image, String appName, String ocToken, String ocServer) {
+def call(String project, String image, String appName, String ocToken, String ocServer, String ocDeployment) {
     script {
         echo "Déploiement de l'application '${appName}' sur OpenShift..."
 
@@ -9,7 +9,7 @@ def call(String project, String image, String appName, String ocToken, String oc
         sh "oc project ${project}"
 
         // Mise à jour de l'image dans le déploiement
-        sh "oc set image deployment/${appName} ${appName}=${image} --namespace=${project}"
+        sh "oc set image deployment/${ocDeployment} ${appName}=${image} --namespace=${project}"
 
         // Vérification du statut du déploiement
         def status = sh(script: "oc rollout status deployment/${appName} --namespace=${project}", returnStatus: true)

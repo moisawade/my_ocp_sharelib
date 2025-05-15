@@ -12,7 +12,8 @@ pipeline {
         OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
         PROJECT = "moussacloudwade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
-        APP_NAME = "labisi2025-00001-deployment"
+        APP_NAME = "labisi2025"
+        APP_DEPLOYMENT = "labisi2025"
     }
 
     stages {
@@ -24,10 +25,18 @@ pipeline {
             }
         }
 
+        // stage('Deploy Application') {
+        //     steps {
+        //         script {
+        //             OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
+        //         }
+        //     }
+        // }
+
         stage('Deploy Application') {
             steps {
                 script {
-                    OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
+                    OpenShiftHelper.deployDeployment(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
                 }
             }
         }
