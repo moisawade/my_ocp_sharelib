@@ -5,11 +5,11 @@ pipeline {
     agent any  
 
     environment {
-        OC_TOKEN = credentials('openshift-token')  // Jenkins credentials
+        OC_TOKEN = credentials('openshift-id')  // Jenkins credentials
         OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
-        PROJECT = "my-openshift-project"
-        IMAGE = "myrepo/my-app:latest"
-        APP_NAME = "my-app"
+        PROJECT = "moussacloudwade-dev"
+        IMAGE = "dockermoisa/labisi2025:latest"
+        APP_NAME = "labisi2025"
     }
 
     stages {
