@@ -13,7 +13,7 @@ pipeline {
         PROJECT = "moussacloudwade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
         APP_NAME = "labisi2025-00001"
-        APP_DEPLOYMENT = "labisi2025-00001"
+        APP_DEPLOYMENT = "labisi2025-00001-deployment"
     }
 
     stages {
