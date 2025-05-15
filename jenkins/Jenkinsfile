@@ -12,8 +12,8 @@ pipeline {
         OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
         PROJECT = "moussacloudwade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
-        APP_NAME = "labisi2025"
-        APP_DEPLOYMENT = "labisi2025"
+        APP_NAME = "labisi2025-00001"
+        APP_DEPLOYMENT = "labisi2025-00001"
     }
 
     stages {
