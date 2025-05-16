@@ -5,16 +5,12 @@ def call(String project, String image, String appName, String ocToken, String oc
         // Connexion à OpenShift
         sh "oc login --token=${ocToken} --server=${ocServer}"
 
-        if (status != 0) {
-            error " Échec du déploiement sur OpenShift !"
-        } else {
-            echo "Déploiement réussi !"
-        }
+
         // Sélection du projet OpenShift
         sh "oc project ${project}"
         
         //Création du deploiement
-        def status = sh(script: sh "oc new-app -name=appName ${appName}=${image} --namespace=${project}", returnStatus: true
+        def status = sh("oc new-app -name=appName ${appName}=${image} --namespace=${project}", returnStatus: true)
         if (status != 0) {
             error " Already exists on OpenShift !"
         } else {
