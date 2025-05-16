@@ -37,7 +37,8 @@ pipeline {
             steps {
                 script {
                    // OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
-                   sh "oc set image deployment/${deploymentName} ${appName}=${image} --namespace=${project}"
+                   sh "oc project ${project}"
+                   sh "oc new-app -name=appName ${APP_NAME}=${IMAGE} --namespace=${PROJECT}"
                 }
             }
         }
