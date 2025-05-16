@@ -1,7 +1,7 @@
 package com.aviro
 
 class OpenShiftHelper {
-    static void login(script, String token, String server) {
+    static void login(script, String token, String server, String deploymentName ) {
         script.sh "oc login --token=${token} --server=${server}"
     }
 
