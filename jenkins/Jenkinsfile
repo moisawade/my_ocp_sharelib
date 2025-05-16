@@ -33,13 +33,13 @@ pipeline {
         //     }
         // }
 
-        stage('Deploy Application') {
-            steps {
-                script {
-                    OpenShiftHelper.deployDeployment(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
-                }
-            }
-        }
+        // stage('Deploy Application') {
+        //     steps {
+        //         script {
+        //             OpenShiftHelper.deployDeployment(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
+        //         }
+        //     }
+        // }
 
         stage('Check Deployment Status') {
             steps {
