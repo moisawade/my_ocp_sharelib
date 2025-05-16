@@ -36,7 +36,7 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 script {
-                    OpenShiftHelper.deployDeployment(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
+                    OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
                 }
             }
         }
