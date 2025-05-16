@@ -38,7 +38,7 @@ pipeline {
                 script {
                    //OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
                    sh "oc project ${project}"
-                   sh "oc delete app ${APP_NAME}"
+                   sh "oc delete app ${APP_DEPLOYMENT}"
                    sh "oc new-app ${IMAGE} -name=${APP_NAME} --namespace=${PROJECT}"
                 }
             }
