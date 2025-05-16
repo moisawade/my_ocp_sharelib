@@ -10,12 +10,7 @@ def call(String project, String image, String appName, String ocToken, String oc
         sh "oc project ${project}"
         
         //Création du deploiement
-        def status = sh("oc new-app -name=appName ${appName}=${image} --namespace=${project}", returnStatus: true)
-        if (status != 0) {
-            error " Already exists on OpenShift !"
-        } else {
-            echo "Deployment successful !"
-        }
+        sh("oc new-app -name=appName ${appName}=${image} --namespace=${project}", returnStatus: true)
 
         // Mise à jour de l'image dans le déploiement
         //sh "oc set image deployment/${ocDeployment} ${appName}=${image} --namespace=${project}"
