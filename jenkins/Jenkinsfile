@@ -38,7 +38,8 @@ pipeline {
                 script {
                    // OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
                    sh "oc project ${project}"
-                   sh "oc new-app -name=appName ${APP_NAME}=${IMAGE} --namespace=${PROJECT}"
+                   // oc new-app docker.io/library/nginx:latest --name=my-nginx -n my-project
+                   sh "oc new-app ${IMAGE} -name=${APP_NAME} --namespace=${PROJECT}"
                 }
             }
         }
