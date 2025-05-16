@@ -5,12 +5,12 @@ class OpenShiftHelper {
         script.sh "oc login --token=${token} --server=${server}"
     }
 
-    static void deploy(script, String project, String image, String appName) {
-        script.sh "oc project ${project}"
-        script.sh "oc set image deployment/${appName} ${appName}=${image} --namespace=${project}"
-    }
+    // static void deploy(script, String project, String image, String appName) {
+    //     script.sh "oc project ${project}"
+    //     script.sh "oc set image deployment/${appName} ${appName}=${image} --namespace=${project}"
+    // }
 
-    static void deployDeployment(script, String project, String image, String appName, String deploymentName) {
+    static void deploy(script, String project, String image, String appName, String deploymentName) {
         script.sh "oc project ${project}"
         script.sh "oc new-app -name=appName ${appName}=${image} --namespace=${project}"
         //script.sh "oc set image deployment/${deploymentName} ${appName}=${image} --namespace=${project}"
