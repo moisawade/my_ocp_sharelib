@@ -12,7 +12,9 @@ class OpenShiftHelper {
 
     static void deployDeployment(script, String project, String image, String appName, String deploymentName) {
         script.sh "oc project ${project}"
-        script.sh "oc set image deployment/${deploymentName} ${appName}=${image} --namespace=${project}"
+        oc new-app docker.io/library/nginx:latest --name=my-nginx -n my-project
+        script.sh "oc new-app -name=appName ${appName}=${image} --namespace=${project}"
+        //script.sh "oc set image deployment/${deploymentName} ${appName}=${image} --namespace=${project}"
     }
 
     // static boolean checkDeployment(script, String project, String appName) {
