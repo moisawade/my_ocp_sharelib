@@ -8,8 +8,11 @@ def call(String project, String image, String appName, String ocToken, String oc
         // Sélection du projet OpenShift
         sh "oc project ${project}"
 
+        //Création du deploiement
+        sh "oc new-app -name=appName ${appName}=${image} --namespace=${project}"
+
         // Mise à jour de l'image dans le déploiement
-        sh "oc set image deployment/${ocDeployment} ${appName}=${image} --namespace=${project}"
+        //sh "oc set image deployment/${ocDeployment} ${appName}=${image} --namespace=${project}"
 
         // Vérification du statut du déploiement
         def status = sh(script: "oc rollout status deployment/${ocDeployment} --namespace=${project}", returnStatus: true)
