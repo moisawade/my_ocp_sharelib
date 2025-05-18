@@ -13,7 +13,7 @@ pipeline {
         PROJECT = "moussa-wade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
         APP_NAME = "devops"
-        APP_DEPLOYMENT = "devops-deployment"
+        APP_DEPLOYMENT = "devops"
     }
 
     stages {
