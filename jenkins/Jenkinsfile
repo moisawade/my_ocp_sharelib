@@ -57,7 +57,7 @@ pipeline {
                         sh "oc set image deployment/${APP_NAME} ${APP_NAME}=${IMAGE} -n ${PROJECT}"
                         sh "oc rollout status deployment/${APP_NAME} -n ${PROJECT}"
                     } else {
-                        echo "Firt deployment. creating the deployment ..."
+                        echo "First deployment. creating the deployment ..."
                         // We could adapt to use oc new-app or apply  a Yaml file
                         sh "oc new-app ${IMAGE} --name=${APP_NAME} -n ${PROJECT}"
                         sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
@@ -65,6 +65,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Expose Application') {
+            steps {
+                script {
+                // Check if a application is exposed
+                def routeExists = sh(
+                script: "oc get route ${APP_NAME} -n ${NAMESPACE}",
+                returnStatus: true
+                ) == 0
+
+                if (!routeExists) {
+                    echo "creating openshift route..."
+                    sh "oc expose svc/${APP_NAME} -n ${NAMESPACE}"
+                } else {
+                    echo "Route existe, no need to create a new one"
+                    }   
+                }
+            }
+        }
+
 
         stage('Check Deployment Status') {
             steps {
