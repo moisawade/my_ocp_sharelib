@@ -25,9 +25,9 @@ pipeline {
 
         stage('Build Docker Image') {
                 steps {
-                        sh ' echo BUILD_ID= ${BUILD_ID}'
-                        sh ' echo JOBNAME= ${JOBNAME}'
-                        sh 'docker build -t ${IMAGE} ../${JOBNAME}/'
+                        sh " echo BUILD_ID= ${env.BUILD_ID}"
+                        sh " echo JOBNAME= ${env.JOBNAME}"
+                        //sh 'docker build -t ${IMAGE} ../${JOBNAME}/'
                 }
             }
 
