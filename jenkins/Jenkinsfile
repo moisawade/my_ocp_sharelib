@@ -9,14 +9,71 @@ pipeline {
 
     environment {
         OC_TOKEN = credentials('openshift-id')  // Jenkins credentials
-        OC_SERVER = "https://api.rm3.7wse.p1.openshiftapps.com:6443"
-        PROJECT = "moussacloudwade-dev"
+        OC_SERVER = "https://api.rm2.thpm.p1.openshiftapps.com:6443"
+        PROJECT = "moussa-wade-dev"
         IMAGE = "dockermoisa/challengewebapp:latest"
-        APP_NAME = "labisi2025"
-        APP_DEPLOYMENT = "labisi2025-00001-deployment"
+        APP_NAME = "devops"
+        APP_DEPLOYMENT = "devops"
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+                steps {
+                        sh 'docker build -t ${IMAGE} .'
+                }
+            }
+
+        stage('Trivy Security Scan') {
+                steps {
+                    sh '''
+                    docker run --rm \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    -v $PWD:/root/reports \
+                    aquasec/trivy image \
+                    --format template \
+                    --template "@/contrib/html.tpl" \
+                    -o /root/reports/trivy-report.html \
+                    ${IMAGE}
+                    '''
+                }
+            }
+
+        stage('Publish Trivy Report') {
+                steps {
+                    publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: false,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'trivy-report.html',
+                    reportName: 'Trivy Security Report',
+                    alwaysLinkToLastBuild: true
+                    ])
+                }
+            }
+
+        //  Optional: Push Docker image to a registry
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds-id',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${IMAGE}
+                    '''
+                }
+            }
+        }
+
         stage('Login to OpenShift') {
             steps {
                 script {
@@ -25,21 +82,48 @@ pipeline {
             }
         }
 
-        // stage('Deploy Application') {
-        //     steps {
-        //         script {
-        //             OpenShiftHelper.deploy(this, PROJECT, IMAGE, APP_NAME)
-        //         }
-        //     }
-        // }
-
         stage('Deploy Application') {
             steps {
                 script {
-                    OpenShiftHelper.deployDeployment(this, PROJECT, IMAGE, APP_NAME, APP_DEPLOYMENT)
+                    // Check if the deployment exists
+                    def exists = sh(
+                        script: "oc get deployment/${APP_NAME} -n ${PROJECT}",
+                        returnStatus: true
+                    ) == 0
+
+                    if (exists) {
+                        echo "Application is already deployed. Updating the deployment..."
+                        sh "oc set image deployment/${APP_NAME} ${APP_NAME}=${IMAGE} -n ${PROJECT}"
+                        sh "oc rollout status deployment/${APP_NAME} -n ${PROJECT}"
+                    } else {
+                        echo "First deployment. creating the deployment ..."
+                        // We could adapt to use oc new-app or apply  a Yaml file
+                        sh "oc new-app ${IMAGE} --name=${APP_NAME} -n ${PROJECT}"
+                        sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
+                    }
                 }
             }
         }
+
+        stage('Expose Application') {
+            steps {
+                script {
+                // Check if a application is exposed
+                def routeExists = sh(
+                script: "oc get route ${APP_NAME} -n ${PROJECT}",
+                returnStatus: true
+                ) == 0
+
+                if (!routeExists) {
+                    echo "creating openshift route..."
+                    sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
+                } else {
+                    echo "Route existe, no need to create a new one"
+                    }   
+                }
+            }
+        }
+
 
         stage('Check Deployment Status') {
             steps {
