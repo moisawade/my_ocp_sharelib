@@ -73,9 +73,7 @@ pipeline {
                 }
             }
         }
-    }
 
-    stages {
         stage('Login to OpenShift') {
             steps {
                 script {
