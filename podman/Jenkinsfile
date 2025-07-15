@@ -1,0 +1,184 @@
+@Library('my_ocp_sharelib') _  
+import com.osl.OpenShiftHelper  
+
+pipeline {
+    agent {
+        label 'builder'
+    }
+
+    environment {
+        IMAGE_NAME = "docker.io/orangesn/challengewebapp"
+        IMAGE_TAG = "latest"
+        REPORT_DIR = "${WORKSPACE}/trivy-report"
+        REPORT_FILE = "${WORKSPACE}/trivy-report/trivy-report.html"
+        OC_TOKEN = credentials('openshift-musa-token-ID')  // Jenkins credentials
+        // For the deployment purpose 
+        OC_SERVER = "=https://api.malaaw-rec.orange-sonatel.com:6443"
+        PROJECT = "osltraining-jalloh1629174"
+        APP_NAME = "devops"
+        APP_DEPLOYMENT = "devops"
+    }
+
+    parameters {
+        booleanParam(name: 'confirmBool', defaultValue: false, description: 'Publish Trivy Report')
+    }
+
+    stages {
+        stage('Préparer le dossier rapport') {
+            steps {
+                script {
+                    sh "mkdir -p ${env.REPORT_DIR}"
+                }
+            }
+        }
+
+        stage('Scan Trivy (non-blocking)') {
+            steps {
+                script {
+                    def imageRef = "${IMAGE_NAME}:${IMAGE_TAG}"
+                    echo "Scanning image (non-bloquant) : ${imageRef}"
+
+                    def result = sh(
+                        script: """
+                            podman run --rm \
+                              -v ${env.REPORT_DIR}:/root/reports:Z \
+                              docker.io/aquasec/trivy \
+                              image ${imageRef} \
+                              --insecure \
+                              --severity CRITICAL,HIGH \
+                              --format template \
+                              --template @contrib/html.tpl \
+                              -o /root/reports/trivy-report.html
+                        """,
+                        returnStatus: true
+                    )
+
+                    if (result != 0) {
+                        echo "CRITICAL or HIGH vulnerabilities detected, but the pipeline continues"
+                    } else {
+                        echo "No critical issues detected"
+                    }
+                }
+            }
+        }
+
+        stage('Publish the Trivy report') {
+            when {
+                expression { return params.confirmBool }
+            }
+            steps {
+                publishHTML(target: [
+                    reportDir: 'trivy-report',
+                    reportFiles: 'trivy-report.html',
+                    reportName: 'Trivy Security Report',
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true
+                ])
+            }
+        }
+
+        stage('Send Scan Report') {
+            steps {
+                emailext (
+                    subject: "Image scan report with Trivy",
+                    body: """Hello,
+
+                            Please find attached the scan report of the image ${imageRef} using Trivy.
+
+                        Cordialement,
+                        """,
+                    attachmentsPattern: 'trivy-report/trivy-report.html',
+                    to: 'moussa.wade@orange-sonatel.com',
+                    from: 'scan-vulns@orange-sonatel.com'
+                )
+            }
+        } 
+
+        //  Optional: Push Docker image to a registry -- To be continue
+        // stage('Push Docker Image') {
+        //     steps {
+        //         withCredentials([usernamePassword(
+        //             credentialsId: 'dockerhub-creds-id',
+        //             usernameVariable: 'DOCKER_USER',
+        //             passwordVariable: 'DOCKER_PASS'
+        //         )]) {
+        //             sh '''
+        //                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+        //                 docker push ${imageRef}
+        //             '''
+        //         }
+        //     }
+        // }
+
+        stage('Login to OpenShift') {
+            steps {
+                script {
+                    OpenShiftHelper.login(this, OC_TOKEN, OC_SERVER)
+                }
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                script {
+                    // Check if the deployment exists
+                    def exists = sh(
+                        script: "oc get deployment/${APP_NAME} -n ${PROJECT}",
+                        returnStatus: true
+                    ) == 0
+
+                    if (exists) {
+                        echo "Application is already deployed. Updating the deployment..."
+                        sh "oc set image deployment/${APP_NAME} ${APP_NAME}=${IMAGE} -n ${PROJECT}"
+                        sh "oc rollout status deployment/${APP_NAME} -n ${PROJECT}"
+                    } else {
+                        echo "First deployment. creating the deployment ..."
+                        // We could adapt to use oc new-app or apply  a Yaml file
+                        sh "oc new-app ${IMAGE} --name=${APP_NAME} -n ${PROJECT}"
+                        sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
+                    }
+                }
+            }
+        }
+
+        stage('Expose Application') {
+            steps {
+                script {
+                // Check if a application is exposed
+                def routeExists = sh(
+                script: "oc get route ${APP_NAME} -n ${PROJECT}",
+                returnStatus: true
+                ) == 0
+
+                if (!routeExists) {
+                    echo "creating openshift route..."
+                    sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
+                } else {
+                    echo "Route exist, no need to create a new one"
+                    }   
+                }
+            }
+        }
+
+
+        stage('Check Deployment Status') {
+            steps {
+                script {
+                    if (!OpenShiftHelper.checkDeployment(this, PROJECT, APP_NAME, APP_DEPLOYMENT)) {
+                        error "Le déploiement a échoué !"
+                    } else {
+                        echo "L'application a été déployée avec succès sur OpenShift !"
+                    }
+                }
+            }
+        }
+
+    }
+
+    post {
+        always {
+            echo "Pipeline completed, critical vulnerabilities do not block the build."
+        }
+    }
+}
