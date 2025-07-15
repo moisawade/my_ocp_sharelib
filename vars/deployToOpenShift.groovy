@@ -3,7 +3,7 @@ def call(String project, String image, String appName, String ocToken, String oc
         echo "Déploiement de l'application '${appName}' sur OpenShift..."
 
         // Connexion à OpenShift
-        sh "oc login --token=${ocToken} --server=${ocServer} --insecure-skip-tls-verify"
+        sh "oc login --token=${ocToken} --server=${ocServer}"
 
         // Sélection du projet OpenShift
         sh "oc project ${project}"
