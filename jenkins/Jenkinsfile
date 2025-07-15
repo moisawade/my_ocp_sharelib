@@ -1,5 +1,5 @@
 @Library('my_ocp_sharelib') _  
-import com.aviro.OpenShiftHelper  
+import com.osl.OpenShiftHelper  
 
 pipeline {
     //agent any  
