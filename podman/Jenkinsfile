@@ -134,12 +134,12 @@ pipeline {
 
                     if (exists) {
                         echo "Application is already deployed. Updating the deployment..."
-                        sh "oc set image deployment/${APP_NAME} ${APP_NAME}=${IMAGE} -n ${PROJECT}"
+                        sh "oc set image deployment/${APP_NAME} ${APP_NAME}=${IMAGE_NAME}:${IMAGE_TAG} -n ${PROJECT}"
                         sh "oc rollout status deployment/${APP_NAME} -n ${PROJECT}"
                     } else {
                         echo "First deployment. creating the deployment ..."
                         // We could adapt to use oc new-app or apply  a Yaml file
-                        sh "oc new-app ${IMAGE} --name=${APP_NAME} -n ${PROJECT}"
+                        sh "oc new-app ${IMAGE_NAME}:${IMAGE_TAG} --name=${APP_NAME} -n ${PROJECT}"
                         sh "oc expose svc/${APP_NAME} -n ${PROJECT}"
                     }
                 }
