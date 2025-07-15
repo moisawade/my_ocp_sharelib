@@ -84,7 +84,7 @@ pipeline {
                     subject: "Image scan report with Trivy",
                     body: """Hello,
 
-                            Please find attached the scan report of the image ${imageRef} using Trivy.
+                            Please find attached the scan report of the image ${IMAGE_NAME}:${IMAGE_TAG} using Trivy.
 
                         Cordialement,
                         """,
