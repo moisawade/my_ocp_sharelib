@@ -13,7 +13,7 @@ pipeline {
         REPORT_FILE = "${WORKSPACE}/trivy-report/trivy-report.html"
         OC_TOKEN = credentials('openshift-musa-token-ID')  // Jenkins credentials
         // For the deployment purpose 
-        OC_SERVER = "=https://api.malaaw-rec.orange-sonatel.com:6443"
+        OC_SERVER = "https://api.malaaw-rec.orange-sonatel.com:6443"
         PROJECT = "osltraining-jalloh1629174"
         APP_NAME = "devops"
         APP_DEPLOYMENT = "devops"
