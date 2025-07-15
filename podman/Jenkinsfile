@@ -19,6 +19,10 @@ pipeline {
         APP_DEPLOYMENT = "devops"
     }
 
+     tools {
+        oc 'oc'
+    }
+
     parameters {
         booleanParam(name: 'confirmBool', defaultValue: false, description: 'Publish Trivy Report')
     }
