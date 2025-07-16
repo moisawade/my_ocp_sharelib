@@ -83,6 +83,9 @@ pipeline {
         }
 
         stage('Send Scan Report') {
+            when {
+                expression { return params.confirmBool }
+            }
             steps {
                 emailext (
                     subject: "Image scan report with Trivy",
